@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: reserva-viagem
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build --prefix client
+    startCommand: node backend_amadeus_render/index.js
+    envVars:
+      - key: AMADEUS_CLIENT_ID
+        sync: false
+      - key: AMADEUS_CLIENT_SECRET
+        sync: false
+      - key: PORT
+        value: 3000

@@ -24,7 +24,6 @@ async function getAccessToken() {
 
   accessToken = response.data.access_token;
 
-  // Expira em 25 minutos
   setTimeout(() => {
     accessToken = null;
   }, 25 * 60 * 1000);
@@ -82,4 +81,18 @@ app.post("/api/search-flights", async (req, res) => {
         adults: passageiros,
         max: 5,
       },
-      headers: {<código copiado do canvas>
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    res.json(data);
+  } catch (err) {
+    console.error("Erro ao buscar voos:", err.response?.data || err.message);
+    res.status(500).json({ error: "Erro ao buscar voos" });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});

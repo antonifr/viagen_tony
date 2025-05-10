@@ -3,8 +3,9 @@ services:
     name: reserva-viagem-backend
     env: node
     plan: free
+    rootDir: backend_amadeus_render
     buildCommand: npm install
-    startCommand: node backend_amadeus_render/index.js
+    startCommand: node index.js
     envVars:
       - key: AMADEUS_CLIENT_ID
         sync: false
@@ -13,17 +14,11 @@ services:
       - key: PORT
         value: 3000
 
-  - type: web
+  - type: static
     name: reserva-viagem-frontend
-    env: node
-    plan: free
-    buildCommand: |
-      cd client
-      npm install
-      npm run build
-    startCommand: |
-      cd client
-      npm start
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
     envVars:
       - key: REACT_APP_API_URL
         value: "https://reserva-viagem-backend.onrender.com"

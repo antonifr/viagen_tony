@@ -9,7 +9,7 @@ app.use(cors());
 const PORT = process.env.PORT || 3000;
 let accessToken = null;
 
-// ✅ Pega o token da Amadeus
+// 🔐 Autenticação com Amadeus
 async function getAccessToken() {
   if (accessToken) return accessToken;
 
@@ -32,7 +32,7 @@ async function getAccessToken() {
   return accessToken;
 }
 
-// 🔍 Endpoint de autocomplete de locais
+// 🔍 Autocomplete de locais
 app.get("/api/locais", async (req, res) => {
   const query = req.query.query;
   if (!query) return res.status(400).json({ error: "Query obrigatória" });
@@ -44,17 +44,14 @@ app.get("/api/locais", async (req, res) => {
       params: {
         keyword: query,
         subType: "AIRPORT,CITY",
-        'page[limit]': 5,
+        "page[limit]": 5,
       },
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const resultados = data.data.map((item) => {
-      return `${item.iataCode} - ${item.name}`;
-    });
-
+    const resultados = data.data.map((item) => `${item.iataCode} - ${item.name}`);
     res.json(resultados);
   } catch (err) {
     console.error("Erro ao buscar locais:", err.response?.data || err.message);
@@ -62,11 +59,27 @@ app.get("/api/locais", async (req, res) => {
   }
 });
 
-// ✈️ Endpoint de busca de voos (já existente)
+// ✈️ Busca de voos
 app.post("/api/search-flights", async (req, res) => {
-  // ... sua lógica de busca de voos
-});
+  const { origem, destino, dataIda, dataVolta, passageiros } = req.body;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-});
+  if (!origem || !destino || !dataIda || !passageiros) {
+    return res.status(400).json({ error: "Campos obrigatórios ausentes" });
+  }
+
+  const origemCode = origem.split(" - ")[0];
+  const destinoCode = destino.split(" - ")[0];
+
+  try {
+    const token = await getAccessToken();
+
+    const { data } = await axios.get("https://test.api.amadeus.com/v2/shopping/flight-offers", {
+      params: {
+        originLocationCode: origemCode,
+        destinationLocationCode: destinoCode,
+        departureDate: dataIda,
+        returnDate: dataVolta || undefined,
+        adults: passageiros,
+        max: 5,
+      },
+      headers: {

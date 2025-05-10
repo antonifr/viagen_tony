@@ -21,4 +21,4 @@ services:
     staticPublishPath: build
     envVars:
       - key: REACT_APP_API_URL
-        value: "https://reserva-viagem-backend.onrender.com"
+        value: "https://reservas-nfpe.onrender.com/"
